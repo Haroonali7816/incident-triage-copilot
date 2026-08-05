@@ -1,0 +1,1482 @@
+github_number,html_url,title,body,human_severity,human_category,notes
+14484,https://github.com/fastapi/fastapi/issues/14484,"In FastAPI 0.123.7, annotations from code imported in `if TYPE_CHECKING` could break","### Privileged issue
+
+- [x] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+In FastAPI 0.123.7, annotations from code imported in `if TYPE_CHECKING` could break
+
+Originally discussed in https://github.com/fastapi/fastapi/discussions/14464 and https://github.com/fastapi/fastapi/pull/11355
+
+Minimal example extracted from the discussion:
+
+```Python
+# /// script
+# requires-python = ""==3.14.*""
+# dependencies = [
+#   ""fastapi==0.123.7"",
+#   ""uvicorn"",
+# ]
+# ///
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Annotated
+
+from fastapi import Depends, FastAPI
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+app = FastAPI()
+
+
+class DummyClient:
+    async def get_people(self) -> list:
+        return [""John Doe"", ""Jane Doe""]
+
+    async def close(self) -> None: ...
+
+
+async def get_client() -> AsyncGenerator[DummyClient, None]:
+    client = DummyClient()
+    yield client
+    await client.close()
+
+
+Client = Annotated[DummyClient, Depends(get_client)]
+
+
+@app.get(""/"")
+async def get_people(client: Client) -> list:
+    return await client.get_people()
+
+
+if __name__ == ""__main__"":
+    import uvicorn
+    uvicorn.run(app, host=""0.0.0.0"", port=8000)
+```
+
+Handled in https://github.com/fastapi/fastapi/pull/14485",low,bug,
+15714,https://github.com/fastapi/fastapi/issues/15714,Implement automatic API documentation generation with interactive examples and SDK generation,"## Problem Statement
+FastAPI auto-docs are basic. Complex APIs need better documentation. No interactive examples by default. SDK generation for clients is manual. API consumers lack context. Documentation maintenance is tedious.
+
+**Business Impact:** Improves developer onboarding by 60%, reduces support overhead, accelerates client integration, improves API adoption.
+
+## Root Cause Analysis
+Docs are auto-generated but basic. Examples are static. SDK generation is external.
+
+## Solution Overview
+- Enhance OpenAPI generation
+- Add interactive examples
+- Build SDK generation system
+- Create test scenario documentation
+- Add authentication flow examples
+
+**Implementation Steps:**
+1. Extend OpenAPI schema
+2. Add example generation
+3. Build SDK generators (TypeScript, Python, Java)
+4. Create interactive docs UI
+5. Add documentation best practices
+
+## Type of Change
+Enhancement, Developer experience, Documentation
+
+## Testing Done
+- Test 50+ API patterns
+- Verify OpenAPI compliance
+- Test SDK generation accuracy
+- Cross-language compatibility
+- Performance testing
+
+## Related Issues & Standards
+OpenAPI 3.0 spec, SDK generation best practices
+
+## Suggested Labels
+enhancement, documentation, developer-experience, openapi, GSSoC26",medium,documentation,
+11624,https://github.com/fastapi/fastapi/issues/11624,How to use single database connection throughout application. ,"### Privileged issue
+
+- [ ] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+How to use single database connection throughout application using sqlalchemy. I have to interact with two different database, i do not want to create database session  on every request. is there any way to create single database connection for each database when application started.
+",low,question,
+12017,https://github.com/fastapi/fastapi/issues/12017,"👷🏻 Recently, the CI is failing due to docs building failures","### Discussed in https://github.com/fastapi/fastapi/discussions/12011
+
+<div type='discussions-op-text'>
+
+<sup>Originally posted by **svlandeg** August 14, 2024</sup>
+### First Check
+
+- [X] I added a very descriptive title here.
+- [X] I used the GitHub search to find a similar question and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/pydantic/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Description
+
+Recently, PRs have started failing the CI due to failing some of the document building checks. It looks like a regression may have been introduced on `master` causing this.
+
+Example PRs that failed today:
+ * https://github.com/fastapi/fastapi/pull/11876
+ * https://github.com/fastapi/fastapi/pull/11515
+
+The error is caused by the following error:
+```
+No such file or directory: '/home/runner/work/fastapi/fastapi/docs/de/docs/img/icon-white.svg'
+```
+
+And the same thing in other languages:
+```
+No such file or directory: '/home/runner/work/fastapi/fastapi/docs/bn/docs/img/icon-white.svg'
+```
+</div>",medium,bug,
+12313,https://github.com/fastapi/fastapi/issues/12313,Required with Ellipsis may not work,"### Privileged issue
+
+- [ ] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#required-parameters
+![QQ_1727594279276](https://github.com/user-attachments/assets/86d8893a-4c3f-45cb-8fc3-7f97cad6ac00)
+python interpreter:3.12.4
+fastapi version:0.115.0
+
+my codes:
+```
+from __future__ import annotations
+from typing import Annotated
+import uvicorn
+from fastapi import FastAPI, Query
+app = FastAPI()
+@app.get(""/items/"")
+async def read_items(q: Annotated[str, Query(min_length = 3)] = ...):
+    """"""
+    curl -X 'GET' 'http://127.0.0.1:18081/items/' -H 'accept: application/json'
+    ValueError: [TypeError(""'ellipsis' object is not iterable""), TypeError('vars() argument must have __dict__ attribute')]
+    """"""
+    results = {""items"": [{""item_id"": ""Foo""}, {""item_id"": ""Bar""}]}
+    if q:
+        results.update({""q"": q})
+    return results
+
+
+if __name__ == '__main__':
+    uvicorn.run(app, host = '127.0.0.1', port = 18081)
+```
+swagger docs:
+![QQ_1727594546393](https://github.com/user-attachments/assets/c1b94031-5145-4f27-981a-6d35f6cc2fe2)
+
+![QQ_1727594603897](https://github.com/user-attachments/assets/4d370afd-5642-4948-8521-65483a460514)
+
+ValueError: [TypeError(""'ellipsis' object is not iterable""), TypeError('vars() argument must have __dict__ attribute')]
+    
+   ",low,other,
+14221,https://github.com/fastapi/fastapi/issues/14221,Changes to _remap_definitions_and_field_mappings failing in v0.119,"Hello there! I just noticed that recent changes to
+
+https://github.com/fastapi/fastapi/blame/cb7018d782c88b189f11d6141c8231ffb9b403b0/fastapi/_compat/v2.py#L273 in v0.119.0
+
+Started showing up as errors like:
+
+```python
+    def _remap_definitions_and_field_mappings(
+        *,
+        model_name_map: ModelNameMap,
+        definitions: Dict[str, Any],
+        field_mapping: Dict[
+            Tuple[ModelField, Literal[""validation"", ""serialization""]], JsonSchemaValue
+        ],
+    ) -> Tuple[
+        Dict[Tuple[ModelField, Literal[""validation"", ""serialization""]], JsonSchemaValue],
+        Dict[str, Any],
+    ]:
+        old_name_to_new_name_map = {}
+        for field_key, schema in field_mapping.items():
+            model = field_key[0].type_
+            if model not in model_name_map:
+                continue
+            new_name = model_name_map[model]
+>           old_name = schema[""$ref""].split(""/"")[-1]
+                       ^^^^^^^^^^^^^^
+E           KeyError: '$ref'
+
+(...)
+
+ field_mapping = {(ModelField(field_info=Body(PydanticUndefined), name='body', mode='validation'), 'validation'): {'$ref': '#/component...validation'), 'validation'): {'$ref': '#/components/schemas/xyz__apps__api__preferences__integrations__Body'}, ...}
+```",medium,other,
+14498,https://github.com/fastapi/fastapi/issues/14498,Performance issue,Slow response under load,low,other,
+5841,https://github.com/fastapi/fastapi/issues/5841,Required Body argument with None is not supported,"### First Check
+
+- [X] I added a very descriptive title to this issue.
+- [X] I used the GitHub search to find a similar issue and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/samuelcolvin/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [x] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+from fastapi import FastAPI, Body
+from typing import Optional
+
+app = FastAPI()
+
+@app.post(""/"")
+def post_data(data: Union[str, None] = Body(...)):
+      pass
+```
+
+
+### Description
+
+According to the [documentation](https://fastapi.tiangolo.com/tutorial/query-params-str-validations/?h=required+none#required-with-none), it is possible to handle a `None` value for **required** argument provided by the user. First of all, the example in the documentation doesn't really make sense, since a Python `None` (i.e. a JSON `null`) can not be provided in the query a GET request, but has to be sent through the body of a POST/PUT request.
+Nevertheless, this is my use case: I have a POST endpoint, with a required (without default) argument, but I want the user to be able to send a `null` value.
+There has been a issue (https://github.com/tiangolo/fastapi/issues/1661) for 2 years exactly about this point. It has been claimed, that this is solved in 0.85.1, but I claim that this is not. I report here below more or less the same MWE:
+
+* store the above code in a file example.py
+* start the fastapi server with `uvicorn example:app`
+* send a POST requ",medium,bug,
+14787,https://github.com/fastapi/fastapi/issues/14787,Add Arabic (العربية) documentation translation,"### Description
+
+FastAPI currently supports translations in 13 languages (de, en, es, fr, ja, ko, pt, ru, tr, uk, zh, zh-hant), but Arabic (العربية) is not yet available.
+
+Arabic is spoken by over 400 million people and is widely used in the growing tech communities across the Middle East and North Africa (MENA region). Many Arabic-speaking developers use FastAPI in production, and having documentation in Arabic would significantly lower the barrier to entry.
+
+### What I'd like to contribute
+
+I'd like to start an Arabic translation following the [Contributing to translations](https://fastapi.tiangolo.com/contributing/#translations) guide. I would begin with:
+
+1. `docs/ar/docs/index.md` (landing page)
+2. `docs/ar/docs/tutorial/first-steps.md` (getting started)
+3. `docs/ar/docs/tutorial/path-params.md` (path parameters)
+
+### Notes
+
+- Arabic is an RTL (right-to-left) language, which may require some CSS/layout considerations in the MkDocs theme
+- I'm a native Arabic speaker and active FastAPI user (using it in a healthcare RAG application)
+- Happy to coordinate with other Arabic-speaking contributors
+
+Would love to get approval before starting work on this. Thanks! 🚀",low,documentation,
+9684,https://github.com/fastapi/fastapi/issues/9684,FastAPI Executable File Using conda Environment,"### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+i have created fastapi exe file by using conda, it will be like windows service and server..
+when install the service  by using "" install_windows_service"" commant, service only running ,  not run server...what is the reason behind that...
+",low,other,
+15612,https://github.com/fastapi/fastapi/issues/15612,OSV advisory MAL-2026-4750 appears to be a false positive for fastapi/fastapi,"### Privileged issue
+
+- [ ] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+There is an OSV advisory MAL-2026-4750 that currently lists the FastAPI GitHub repository as affected:
+https://osv.dev/vulnerability/MAL-2026-4750
+
+After investigating, we believe this is a false positive and that the FastAPI project itself is not affected by the described issue.
+
+If you agree that MAL-2026-4750 is not applicable to fastapi/fastapi and if you are in contact with OSV, it would be very helpful if you could request a correction or removal of the false association, since many consumers rely on these feeds.
+
+Thanks!",medium,documentation,
+15680,https://github.com/fastapi/fastapi/issues/15680,AI安全审计报告：FastAPI代码质量评估,"## 🕳️ AI 代码审计报告
+
+对 FastAPI (tiangolo/fastapi) 进行了自动安全扫描。
+
+### 扫描概况
+
+- 源文件: 1,120 个 Python 文件 (109,217 行代码)
+- 发现: 2 类安全模式
+
+### 发现详情
+
+**1. 命令执行相关调用（3处）**
+- 存在 subprocess.Popen / os.system 等调用
+- 建议: 审查这些调用是否涉及用户输入，使用 shlex.quote 处理参数
+
+**2. 配置密钥（4处）**
+- 代码中包含 SECRET_KEY 等配置字面量
+- 建议: 生产环境通过环境变量注入
+
+---
+
+📊 FastAPI 整体代码质量较高。
+本次扫描基于静态代码分析，未进行动态验证。
+
+⚡ 扫描工具: ONESEC v4.0（多语言引擎：Go + Python）
+
+> 如需对您的项目做安全审计，可联系: l15250432278@163.com",high,other,
+14503,https://github.com/fastapi/fastapi/issues/14503,Performance issue,Slow response under load,low,other,
+12402,https://github.com/fastapi/fastapi/issues/12402,"[BUG] In version 0.115.0 of FastAPI, the pydantic model that has declared an alias cannot correctly receive query parameters","Thank you for all the work you have done. I have initiated the [discussion ](https://github.com/fastapi/fastapi/discussions/12401)as requested, but I think this issue is quite important. Initiating this issue is just to prevent the discussion from being drowned out, and I apologize for any offense.
+
+### Example Code
+
+```python
+import uvicorn
+from typing import Literal
+
+from fastapi import FastAPI, Query
+from pydantic import BaseModel, ConfigDict, Field
+from pydantic.alias_generators import to_camel
+
+app = FastAPI()
+
+
+class FilterParams(BaseModel):
+    model_config = ConfigDict(alias_generator=to_camel)
+
+    limit: int = Field(100, gt=0, le=100)
+    offset: int = Field(0, ge=0)
+    order_by: Literal['created_at', 'updated_at'] = 'created_at'
+    tags: list[str] = []
+
+
+@app.get('/items/')
+async def read_items(filter_query: FilterParams = Query()):
+    return filter_query
+
+
+if __name__ == '__main__':
+    uvicorn.run(app='app:app')
+```
+
+
+### Description
+
+Running the code in the example above, I encountered an incorrect result when accessing http://127.0.0.1:8000/items/?offset=1&orderBy=updated_at in the browser, orderBy did not receive successfully.
+```
+{
+    ""limit"": 100,
+    ""offset"": 1,
+    ""orderBy"": ""created_at"",
+    ""tags"": []
+}
+```
+The correct result should be as follows
+```
+{
+    ""limit"": 100,
+    ""offset"": 1,
+    ""orderBy"": ""updated_at"",
+    ""tags"": []
+}
+```
+
+### Operating System
+
+Windows
+
+### Operating System Details
+
+_No response_
+
+### FastAPI Version
+
+0.115.0
+
+### Pydantic Version
+
+2.9.2
+
+### Python Version
+
+3.9.19
+
+### Additional Context
+
+_No response_",medium,bug,
+12239,https://github.com/fastapi/fastapi/issues/12239,Sponsor Badge CSS overflow issue on the docs,"### Discussed in https://github.com/fastapi/fastapi/discussions/12218
+
+<div type='discussions-op-text'>
+
+<sup>Originally posted by **nat236919** September 19, 2024</sup>
+### First Check
+
+- [X] I added a very descriptive title here.
+- [X] I used the GitHub search to find a similar question and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/pydantic/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+announce-wrapper .sponsor-badge {
+    display: block;
+    position: absolute;
+    top: -10px;
+    right: 0;
+    font-size: 0.5rem;
+    color: #999;
+    background-color: #666;
+    border-radius: 10px;
+    padding: 0 10px;
+    z-index: 10;
+}
+```
+
+
+### Description
+
+![image](https://github.com/user-attachments/assets/0b9cc528-d268-4e2f-b073-0988228ebd55)
+
+Due to its absolute position and overflow setting, the text is trailing down creating an expected scroll. I think we can simply solve the issue by removing **position: absolute;**
+
+### Operating System
+
+Windows
+
+### Operating System Details
+
+_No response_
+
+### FastAPI Version
+
+NA
+
+### Pydantic Version
+
+NA
+
+### Python Version
+
+NA
+
+### Additional Context
+
+_No response_</div>",low,documentation,
+5892,https://github.com/fastapi/fastapi/issues/5892,why my last_query option not work when i'm not give q(query parameter)?,"### First Check
+
+- [X] I added a very descriptive title to this issue.
+- [X] I used the GitHub search to find a similar issue and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/samuelcolvin/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+from fastapi import Cookie, Depends, FastAPI
+import uvicorn
+
+app = FastAPI()
+
+def query_extractor(q: str = None):
+    return q
+
+def query_or_cookie_extractor(q: str=Depends(query_extractor), last_query: str=Cookie(default=None)):
+    print(""Q: "", q)
+    print(""last_query: "", last_query)
+
+    if not q:
+        return last_query
+    return q
+
+@app.get(""/items/"")
+async def read_query(query: str = Depends(query_or_cookie_extractor)):
+    return {
+        ""query"": query
+    }
+
+if __name__ == ""__main__"":
+    uvicorn.run(app, host=""0.0.0.0"", port=int(os.getenv(""9000"")))
+```
+
+
+### Description
+
+In fast api documentation say if query parameter q is null and give last_query this code show last_query parameter but this code show null when i am not give q query parameter why?
+
+### Operating System
+
+Linux
+
+### Operating System Details
+
+_No response_
+
+### FastAPI Version
+
+0.70.1
+
+### Python Version
+
+3.8
+
+### Additional Context
+
+_No response_",medium,question,
+15713,https://github.com/fastapi/fastapi/issues/15713,Add automatic request/response caching with smart cache invalidation strategies,"## Problem Statement
+FastAPI lacks built-in caching. Redis integration requires manual setup. Cache invalidation is complex. No standard way to cache responses based on dependencies. Teams implement custom caching repeatedly.
+
+**Business Impact:** Improves endpoint response times by 70-90%, reduces database load by 50%, enables serving 100x more requests, reduces infrastructure costs.
+
+## Root Cause Analysis
+Caching is external concern. No framework integration. Cache invalidation strategies are undefined.
+
+## Solution Overview
+- Implement caching decorator
+- Add smart cache invalidation
+- Build dependency tracking
+- Support multiple backends (Redis, Memcached, in-memory)
+- Create monitoring
+
+**Implementation Steps:**
+1. Design cache decorator API
+2. Implement cache key generation
+3. Build dependency tracking system
+4. Add backend adapters
+5. Create examples
+
+## Type of Change
+Enhancement, Performance, Scalability
+
+## Testing Done
+- Test 40+ caching scenarios
+- Verify cache accuracy
+- Performance testing (< 1ms cache hits)
+- Test invalidation correctness
+- Benchmark with 10000+ requests
+
+## Related Issues & Standards
+HTTP caching standards, cache patterns
+
+## Suggested Labels
+enhancement, caching, performance, scalability, GSSoC26",high,feature_request,
+5831,https://github.com/fastapi/fastapi/issues/5831,Fastapi ,"### First Check
+
+- [X] I added a very descriptive title to this issue.
+- [X] I used the GitHub search to find a similar issue and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/samuelcolvin/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+from fastapi import FastAPI
+import gradio as gr
+
+CUSTOM_PATH = ""/gradio""
+
+app = FastAPI()
+
+@app.get(""/"")
+def read_main():
+    return {""message"": ""This is your main app""}
+
+io = gr.Interface(lambda x: ""Hello, "" + x + ""!"", ""textbox"", ""textbox"")
+gradio_app = gr.routes.App.create_app(io)
+
+app.mount(CUSTOM_PATH, gradio_app)
+```
+
+
+### Description
+
+I want to restrict /gradio that only login user can access this 
+Can I use some condition like user login and subscribed or not 
+
+### Operating System
+
+Windows
+
+### Operating System Details
+
+_No response_
+
+### FastAPI Version
+
+Latest install with pip
+
+### Python Version
+
+3.9
+
+### Additional Context
+
+_No response_",low,other,
+12924,https://github.com/fastapi/fastapi/issues/12924,"Do you have a performance checker for FaskAPI? The problem is that when you make 100 concurrent requests, the API returns are slow. How do you solve it?","### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+![image](https://github.com/user-attachments/assets/531ebf3c-0d76-4241-a742-b9286e20736d)
+![image](https://github.com/user-attachments/assets/7942db47-2a25-4af7-aaa1-4a6c40ccd735)
+![image](https://github.com/user-attachments/assets/c91ae68c-e57c-471b-a182-b0a49dea3df6)
+Is there a problem with the code, is there any code to refer to, or is there a health monitoring tool to check the FaskAPI",medium,question,
+9764,https://github.com/fastapi/fastapi/issues/9764,FastAPI return response code of 422 when sending image files to test.,"### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+Hi. I'm writing test.py to test my server. I send an image as a request and it worked. But when I tried to send 2 or more image files, I failed. It returned this error: 
+**422
+{'detail': [{'loc': ['body', 'file_list'], 'msg': 'field required', 'type': 'value_error.missing'}]}**
+
+Here is my code in the test.py file: 
+```
+import os
+import requests
+
+# Define the URL and the headers
+url = ""http://127.0.0.1:8000/liveness_detection_image""
+# headers = {
+#     ""accept"": ""application/json"",
+#     ""Content-Type"": ""multipart/form-data"",
+# }
+# file_paths = []
+BASE_PATH = '/home/trung2000/Desktop/ai/POC/clean_arch/script/test_images/'
+
+file2 = BASE_PATH + ""image_2.jpg""
+file1 = BASE_PATH + ""image_1.jpg""
+# Define the file to upload
+file_list = [(""image_2"",open(file2, ""rb"")),
+             (""image_1"",open(file1, ""rb"")),]
+
+# Send a POST request with the file as multipart/form-data
+response = requests.post(url,files=file_list)
+
+# Print the response status and content
+print(response.status_code)
+print(response.json())
+```
+
+And here is the code that I defined my router:
+```
+router = APIRouter()
+
+@router.post(""/liveness_detection_image"")
+async def liveness_detection_img(file_list: list[UploadFile] = File(),) :
+    response_list = []
+    # Declare model params and model
+    MODEL_DIR = ""./resources/anti_spoof_models""
+    model = AntiSpoofPredict(0)
+    # Construct an object of class UsecaseImageProcessing
+    usecaseDetect= UsecaseImageProcessing(MODEL_DIR = MODEL_DIR, model = model)
+    for file in file_list:
+        image_bytes = await file.read()
+        arr = np.asarray(bytearray(image_bytes), dtype=np.uint8)
+        response = handler_detect_response(arr,usecaseDetect) # dependency injection
+        response_list.append(response)
+            
+    return response_list
+```
+**Please help me!**",medium,bug,
+12382,https://github.com/fastapi/fastapi/issues/12382,HTML WEB SAMPLES FOR TOKEN AUTH,"### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+Everything demo, o smal sample is oriented to json, not web templates,
+
+could u include samples with html samples, about login jwt many concurrent users.
+
+pls ",low,other,
+9355,https://github.com/fastapi/fastapi/issues/9355,When to update the https://fastapi.tiangolo.com/zh/？,"### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+When to update the https://fastapi.tiangolo.com/zh/？ just like ""Concurrency and async / await""",medium,question,
+11586,https://github.com/fastapi/fastapi/issues/11586,Is there a bug in the single body pass parameter?,"### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+server
+```
+from fastapi import FastAPI
+import uvicorn
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class InputParams(BaseModel):
+    name:str
+
+@app.post(""/"")
+async def index(params:InputParams):
+    return f""hello {params.name}""
+
+
+uvicorn.run(app)
+```
+
+
+
+
+client
+```
+import requests
+import json
+
+host = ""http://localhost:8000""
+uri = ""/""
+url = host + uri
+
+
+body = {""name"": ""aaa""}
+
+response = requests.post(url, json=body)
+print(response.status_code)
+print(response.json())
+```
+
+
+It's OK. 
+server
+```
+from fastapi import FastAPI, Body
+import uvicorn
+
+app = FastAPI()
+
+@app.post(""/"")
+async def index(name:str=Body(), age:int=Body()):
+    return f""hello {name}, {age}""
+
+
+uvicorn.run(app)
+```
+
+client
+```
+import requests
+import json
+
+host = ""http://localhost:8000""
+uri = ""/""
+url = host + uri
+
+
+body = {""name"": ""aaa"", ""age"":18}
+
+response = requests.post(url, json=body)
+print(response.status_code)
+print(response.json())
+```
+
+
+OK again.
+
+
+server
+```
+from fastapi import FastAPI, Body
+import uvicorn
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class InputParams(BaseModel):
+    name:str
+    age:int
+
+@app.post(""/"")
+async def index(params:InputParams):
+    return f""hello {params.name, params.age}, ""
+
+
+uvicorn.run(app)
+```
+
+
+client
+```
+import requests
+import json
+
+host = ""http://localhost:8000""
+uri = ""/""
+url = host + uri
+
+
+body = {""name"": ""aaa"", ""age"":18}
+
+response = requests.post(url, json=body)
+print(response.status_code)
+print(response.json())
+```
+
+ok. No problem.
+
+But!!!!
+server
+```
+from fastapi import FastAPI, Body
+import uvicorn
+
+app = FastAPI()
+
+@app.post(""/"")
+async def index(name:str=Body()):
+    return f""hello {name}""
+
+
+uvicorn.run(app)
+```
+
+client
+```
+import requests
+import json
+
+host = ""http://localhost:8000""
+uri = ""/""
+url = h",medium,question,
+15969,https://github.com/fastapi/fastapi/issues/15969,Tracking: Current open issues (links to Roadmap),"## Current Open Issues Summary
+
+**As of 2026-07-10** (queried via GitHub API):
+
+- **Total open issues**: 1
+
+### The only open issue:
+
+- **#10370** 🚀 Roadmap
+  - Author: [@tiangolo](https://github.com/tiangolo)
+  - Created: 2023-10-02
+  - Last updated: 2026-06-14
+  - State: open (locked)
+  - Comments: 5
+  - Reactions: 46
+
+This is the project's main tentative roadmap issue. It lists completed items (e.g. Pydantic v2 serialization support, FastAPI CLI, router refactoring) and remaining planned work (e.g. additional auth tools, Kubernetes docs, performance optimizations, etc.).
+
+> Note from the roadmap: ""For individual conversations, comments, requests, questions, please create a separate discussion question.""
+
+## No other open issues
+
+There are currently **no open bug reports, feature requests, or documentation issues** tracked as GitHub issues. Recent activity in the repository is primarily through Pull Requests (dozens of recent open PRs for docs fixes, performance improvements, features like route caching, etc.) and Discussions.
+
+## Links
+
+- **Official Roadmap**: https://github.com/fastapi/fastapi/issues/10370
+- Repository: https://github.com/fastapi/fastapi
+
+---
+
+This issue serves as a lightweight tracking pointer to the main roadmap for visibility.
+
+*Created via GitHub MCP tools for tracking purposes.*",low,other,
+13533,https://github.com/fastapi/fastapi/issues/13533,Multiple regressions in the handling of forms & form validation,"
+
+### Issue Content
+
+We have found at least 2 regression in the way forms are handled while trying to migrate to v0.115.11 from version v0.112.4. After investigation we were able to identify 2 commits that introduce 2 separate bugs that break the handling of default values in both `x-form-urlencoded` and `mutlipart` froms. Partial fixes have been proposed that also address a CVE, but the PR has been hanging since october 24.
+
+# Breaking in the handling of default value in `x-url-encoded` forms
+
+This bug has been introduced in https://github.com/fastapi/fastapi/pull/12134.
+
+MRE:
+```python
+app = FastAPI()
+
+
+@app.post(""/"")
+def root(
+    name: Annotated[Optional[str], Form(embed=True)] = None,
+):
+    print(name)
+    return name
+```
+
+with the following request:
+```
+❯ http post -v --form localhost:8888 name=""""
+POST / HTTP/1.1
+Accept: */*
+Accept-Encoding: gzip, deflate, br, zstd
+Connection: keep-alive
+Content-Length: 5
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8888
+User-Agent: xh/0.24.0
+
+name=
+
+HTTP/1.1 200 OK
+Content-Length: 2
+Content-Type: application/json
+Date: Sun, 23 Mar 2025 21:01:49 GMT
+Server: uvicorn
+
+""""
+```
+The expected result is that `None` is printed, but instead `""""` is printed.
+
+this is the offending bit from the linked PR:
+```
+diff --git a/fastapi/dependencies/utils.py b/fastapi/dependencies/utils.py
+index 6083b731..db7eedba 100644
+--- a/fastapi/dependencies/utils.py
++++ b/fastapi/dependencies/utils.py
+@@ -789,9 +789,9 @@ async def _extract_form_body(
+             value = serialize_sequence_value(field=field, value=results)
+         if value is not None:
+             values[field.name] = value
+-    for key, value in received_body.items():
+-        if key not in values:
+-            values[key] = value
++    # for key, value in received_body.items():
++    #     if key not in values:
++    #         values[key] = value
+     return values
+```
+This patch solves the x-form-urlencoded  case. So we indeed have two different regressions.
+This _ge",low,other,
+10720,https://github.com/fastapi/fastapi/issues/10720,functools.partial() does not work on an async dependable,"### Discussed in https://github.com/tiangolo/fastapi/discussions/9744
+
+<div type='discussions-op-text'>
+
+<sup>Originally posted by **lieryan** June 26, 2023</sup>
+### First Check
+
+- [X] I added a very descriptive title here.
+- [X] I used the GitHub search to find a similar question and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/pydantic/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+from functools import partial
+
+from fastapi import FastAPI, Depends
+
+
+app = FastAPI()
+
+def the_answer():
+    return 42
+
+
+async def dep1(
+    n: int = Depends(the_answer),
+):
+    return n + 1
+
+@app.get(""/"")
+def main(
+    d1=Depends(partial(dep1, n=10)),
+):
+    print(d1)   # prints ""<coroutine object dep1 at 0x7facc996fb50>""
+    return {}
+
+
+if __name__ == '__main__':
+    import uvicorn
+    uvicorn.run(app, port=1122)
+```
+
+
+### Description
+
+I would've expected `d1` above to be the return value of the dependable, but it seems like fastapi didn't identify the partial as an coroutine function and instead passed the unawaited coroutine into the view function.
+
+`inspect.iscoroutinefunction()` and `inspect.signature()` were able to deconstruct the partial object to correctly identify whether a partial contains a coroutine or a regular function, so it seems like it should've been possible for FastAPI to use handle partial correctly:
+
+```
+In ",high,feature_request,
+13715,https://github.com/fastapi/fastapi/issues/13715,SUB APPLICATIONS - MOUNTS IS SHOW INCORRECT INFORMATION,"### Privileged issue
+
+- [x] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+Hi,
+
+I'm checking the docs: https://fastapi.tiangolo.com/advanced/sub-applications/#check-the-automatic-api-docs
+
+I see this example:
+
+![Image](https://github.com/user-attachments/assets/12381416-ea90-46c8-bc0d-bf1f38fbc9ec)
+
+but when I test in my local machine. I see it:
+
+![Image](https://github.com/user-attachments/assets/347a24d3-edb2-439c-b3cc-afe4875d0783)
+
+Am I doing some bad?
+
+Thanks.",medium,documentation,
+12419,https://github.com/fastapi/fastapi/issues/12419,"Question about ""Required, can be None"" parameter","### Discussed in https://github.com/fastapi/fastapi/discussions/12418
+
+<div type='discussions-op-text'>
+
+<sup>Originally posted by **bowenerchen** October 10, 2024</sup>
+### First Check
+
+- [X] I added a very descriptive title here.
+- [X] I used the GitHub search to find a similar question and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/pydantic/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+from typing import Annotated
+
+from fastapi import FastAPI, Query
+
+app = FastAPI()
+
+
+@app.get(""/items/"")
+async def read_items(q: Annotated[str | None, Query(min_length=3)] = ...):
+    results = {""items"": [{""item_id"": ""Foo""}, {""item_id"": ""Bar""}]}
+    if q:
+        results.update({""q"": q})
+    return results
+```
+
+
+### Description
+
+https://fastapi.tiangolo.com/tutorial/query-params-str-validations/#required-can-be-none
+![QQ_1728534861112](https://github.com/user-attachments/assets/95e967aa-ea9f-46c1-80c8-f13dc7c52e6c)
+how to pass a None value to the required query parameter q?
+
+### Operating System
+
+macOS
+
+### Operating System Details
+
+Sonoma 14.7 M2 Max
+
+### FastAPI Version
+
+0.115.0
+
+### Pydantic Version
+
+2.5.3
+
+### Python Version
+
+Python 3.12.4
+
+### Additional Context
+
+_No response_</div>",low,question,
+10787,https://github.com/fastapi/fastapi/issues/10787,Old `HTTPValidationError` and `ValidationError` OpenAPI entry,"### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+Those lines need to be updated:
+
+https://github.com/tiangolo/fastapi/blob/36c26677682c4245183912e00fc057c05cc6cf7a/fastapi/openapi/utils.py#L36-L61
+
+They reflect how it was before 0.100.0, but with Pydantic V2, that's no longer true.",medium,documentation,
+10236,https://github.com/fastapi/fastapi/issues/10236,Inconsistent add_api_route types,"### Discussed in https://github.com/tiangolo/fastapi/discussions/10235
+
+<div type='discussions-op-text'>
+
+<sup>Originally posted by **sidekick-eimantas** September 12, 2023</sup>
+### First Check
+
+- [X] I added a very descriptive title here.
+- [X] I used the GitHub search to find a similar question and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/pydantic/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+### Direct mounting of routes
+import pathlib
+
+from fastapi import FastAPI, APIRouter
+import uvicorn
+import pydantic
+
+class HelloRequest(pydantic.BaseModel):
+    id: str
+
+
+class HelloResponse(pydantic.BaseModel):
+    hello: str
+
+
+class Hello:
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    async def handle(self, request: HelloRequest) -> HelloResponse:
+        return HelloResponse(hello=self.name)
+
+app = FastAPI()
+hello_handler = Hello(name=""test"")
+app.add_api_route(""/hello"", hello_handler.handle, methods=[""POST""])
+
+
+
+
+
+
+### Mounting of paths via Router
+import pathlib
+
+from fastapi import FastAPI, APIRouter
+import uvicorn
+import pydantic
+
+class HelloRequest(pydantic.BaseModel):
+    id: str
+
+
+class HelloResponse(pydantic.BaseModel):
+    hello: str
+
+
+class Hello:
+    def __init__(self, name: str) -> None:
+        self.name = name
+
+    async def handle(self, request: HelloRequest) -",high,bug,
+14501,https://github.com/fastapi/fastapi/issues/14501,Performance issue,Slow response under load,low,other,
+10462,https://github.com/fastapi/fastapi/issues/10462,Combining image and data response in fast api.,"### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+Hi,
+
+I want to send image as well as information related to the image as response in fast api. I tried passing data as header information in file response, I am able to get only image in the output response not the data information. Can anyone help me.",medium,documentation,
+10717,https://github.com/fastapi/fastapi/issues/10717,FastAPI with Pydantic v2 and FastAPI-JWT-Auth,"Pydantic v2 isn't working with FastAPI-JWT-Auth i'm always getting the Type Error highlighting that @validators can not be applied on schemas of  json-to-python.
+
+So is there any other alternative other than downgrading to version 1?",high,bug,
+11754,https://github.com/fastapi/fastapi/issues/11754,test issue fasapi,"### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+test",low,other,
+15448,https://github.com/fastapi/fastapi/issues/15448,Malformed Links in Documentation Home,"### Privileged issue
+
+- [x] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+Hi, 
+
+I just accessed the documentation home page and saw that the links on the Opinitions sections was malformed: 
+
+<img width=""1742"" height=""1220"" alt=""Image"" src=""https://github.com/user-attachments/assets/b40f29ae-4472-4157-9ec7-a5eb1afdb85c"" />
+
+I though about correcting it to start contributing, but I don't have the time rn, so I wanted to report. If I have the time I might look into correcting this to start contributing more.
+
+Please, feel free to connect and hope to have helped. Let me know if this is not the right place and where that would be.
+
+Best,",medium,documentation,
+6007,https://github.com/fastapi/fastapi/issues/6007,Duplicate headers,"### Privileged issue
+
+- [X] I'm @tiangolo or he asked me directly to create an issue here.
+
+### Issue Content
+
+Hi,
+  I like fastapi very much, but I encountered a problem during my study.
+
+  My code :
+```
+from typing import List, Union
+
+from fastapi import FastAPI, Header
+
+app = FastAPI()
+
+
+@app.get(""/items/"")
+async def read_items(x_token: Union[List[str], None] = Header(default=None)):
+    return {""X-Token values"": x_token}
+```
+
+I got a 422 return code not 200
+<img width=""1483"" alt=""image"" src=""https://user-images.githubusercontent.com/41281305/219401923-3c007af4-5f45-40e9-8f89-934073bdaabb.png"">
+
+
+According to the document description, I think I will get the following content:
+```
+{
+    ""X-Token values"": [
+        ""bar"",
+        ""foo""
+    ]
+}
+```
+
+     ",low,bug,
+5859,https://github.com/fastapi/fastapi/issues/5859,FastAPI==0.89.0 Cannot use `None` as a return type when `status_code` is set to 204 with `from __future__ import annotations`,"### First Check
+
+- [X] I added a very descriptive title to this issue.
+- [X] I used the GitHub search to find a similar issue and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/samuelcolvin/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+from __future__ import annotations 
+
+from fastapi import FastAPI
+
+app = FastAPI()
+
+
+@app.get(""/"", status_code=204)
+def read_root() -> None:
+    return {""Hello"": ""World""}
+```
+
+
+### Description
+
+If we add:
+`from __future__ import annotations`
+
+It changes the annotations structure and the response model is `NoneType` instead of `None`, which causes validation of the `statuc_code` vs `response_model` and raises an exception.
+
+```python
+  ...
+  File "".../site-packages/fastapi/routing.py"", line 635, in decorator
+    self.add_api_route(
+  File "".../site-packages/fastapi/routing.py"", line 574, in add_api_route
+    route = route_class(
+  File "".../site-packages/fastapi/routing.py"", line 398, in __init__
+    assert is_body_allowed_for_status_code(
+AssertionError: Status code 204 must not have a response body
+```
+
+I am working on a fix for it right now.
+
+### Operating System
+
+macOS
+
+### Operating System Details
+
+_No response_
+
+### FastAPI Version
+
+0.89.0
+
+### Python Version
+
+3.10
+
+### Additional Context
+
+_No response_",high,feature_request,
+14444,https://github.com/fastapi/fastapi/issues/14444,FastAPI 0.123.5 breaks async wrappers using @wraps,"(Already being worked on)
+
+### Discussed in https://github.com/fastapi/fastapi/discussions/14442
+
+<div type='discussions-op-text'>
+
+<sup>Originally posted by **falkoschindler** December  3, 2025</sup>
+### First Check
+
+- [X] I added a very descriptive title here.
+- [X] I used the GitHub search to find a similar question and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/pydantic/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+from functools import wraps
+import uvicorn
+from fastapi import FastAPI
+
+app = FastAPI()
+
+def my_decorator(func):
+    """"""A decorator that wraps a sync function with an async handler.""""""
+
+    @wraps(func)
+    async def wrapper():
+        func()
+        return 'OK'
+
+    return wrapper
+
+@app.get('/')
+@my_decorator
+def index():
+    """"""A simple sync page function.""""""
+    print('Hello!')
+
+if __name__ == '__main__':
+    uvicorn.run(app)
+```
+
+
+### Description
+
+* Visit ""/"".
+* You'll see ""Internal Server Error"".
+* A ValueError appears:
+    ```
+    ValueError: [TypeError(""'coroutine' object is not iterable""), TypeError('vars() argument must have __dict__ attribute')]
+    ```
+
+Since FastAPI 0.123.5 (PR #14434), using `functools.wraps` on an async wrapper around a sync function causes FastAPI to incorrectly treat the handler as sync, resulting in: `ValueError: [TypeError(""'coroutine' object is not iterable""), ...]`
+
+The issue is that `Dependant.is_coroutine_callable`",medium,other,
+10259,https://github.com/fastapi/fastapi/issues/10259,How to define custom objects as query parameters in FastAPI (using PydanticV2 annotations)?,"### Discussed in https://github.com/tiangolo/fastapi/discussions/10101
+
+<div type='discussions-op-text'>
+
+<sup>Originally posted by **DSamuylov** August 17, 2023</sup>
+### First Check
+
+- [X] I added a very descriptive title here.
+- [X] I used the GitHub search to find a similar question and didn't find it.
+- [X] I searched the FastAPI documentation, with the integrated search.
+- [X] I already searched in Google ""How to X in FastAPI"" and didn't find any information.
+- [X] I already read and followed all the tutorial in the docs and didn't find an answer.
+- [X] I already checked if it is not related to FastAPI but to [Pydantic](https://github.com/pydantic/pydantic).
+- [X] I already checked if it is not related to FastAPI but to [Swagger UI](https://github.com/swagger-api/swagger-ui).
+- [X] I already checked if it is not related to FastAPI but to [ReDoc](https://github.com/Redocly/redoc).
+
+### Commit to Help
+
+- [X] I commit to help with one of those options 👆
+
+### Example Code
+
+```python
+import bson
+from typing import Annotated
+
+from pydantic import (
+    field_validator,
+    PlainSerializer,
+    WithJsonSchema,
+    BeforeValidator,
+    TypeAdapter,
+)
+from fastapi import FastAPI
+
+
+ObjectId = Annotated[
+    bson.ObjectId,
+    BeforeValidator(lambda x: bson.ObjectId(x) if isinstance(x, str) else x),
+    PlainSerializer(lambda x: f""{x}"", return_type=str),
+    WithJsonSchema({""type"": ""string""}, mode=""validation""),
+    WithJsonSchema({""type"": ""string""}, mode=""serialization""),
+]
+
+# Casting from str to ObjectId - WORKS
+ta = TypeAdapter(
+    ObjectId,
+    config=dict(arbitrary_types_allowed=True),
+)
+ta.validate_python(""5f7f9f0c2a0e0b0001d5b3d0"")
+ta.json_schema()
+
+# Use ObjectId as a query parameter in FastAPI - FAILS:
+app = FastAPI()
+
+@app.get(""/test"")
+def test(id: ObjectId) -> bool:
+    return True
+```
+
+
+### Description
+
+I am trying to figure out how to update my FastAPI app after from Pydantic v1 to Pydantic v2.",medium,question,
+14989,https://github.com/fastapi/fastapi/issues/14989,I'm @tiangolo or he asked me directly to create an issue here.,,low,other,

@@ -1,0 +1,202 @@
+{
+  "15969": {
+    "severity": "low",
+    "category": "other",
+    "summary": "This is an automated tracking issue pointing to the main project roadmap and showing that there are currently no other open issues."
+  },
+  "15714": {
+    "severity": "medium",
+    "category": "feature_request",
+    "summary": "Request to implement automatic API documentation generation with interactive examples and multi-language SDK generation to improve developer experience."
+  },
+  "15713": {
+    "severity": "medium",
+    "category": "feature_request",
+    "summary": "Request to add built-in request/response caching with smart invalidation, dependency tracking, and multi-backend support to FastAPI."
+  },
+  "15680": {
+    "severity": "low",
+    "category": "other",
+    "summary": "An automated AI security scan report for FastAPI suggesting a review of subprocess calls and environment variable usage for secret keys."
+  },
+  "15612": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "OSV advisory MAL-2026-4750 incorrectly lists the FastAPI repository as affected, causing a false positive vulnerability alert."
+  },
+  "15448": {
+    "severity": "low",
+    "category": "documentation",
+    "summary": "The links in the Opinions section on the documentation home page are malformed."
+  },
+  "14989": {
+    "severity": "low",
+    "category": "other",
+    "summary": "The issue has no provided description and appears to be a low-signal or test submission."
+  },
+  "14787": {
+    "severity": "low",
+    "category": "feature_request",
+    "summary": "A contributor is offering to add Arabic (\u0627\u0644\u0639\u0631\u0628\u064a\u0629) translation for the documentation, starting with the landing page and initial tutorials, and is asking for approval before beginning."
+  },
+  "14503": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "The application experiences slow response times under load, indicating a performance issue."
+  },
+  "14501": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "The system experiences slow response times under heavy load."
+  },
+  "14498": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "The application experiences slow response times under load, representing a performance bug with limited initial detail."
+  },
+  "14484": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "In FastAPI 0.123.7, code annotations imported inside an if TYPE_CHECKING block could break, which was subsequently handled in a pull request."
+  },
+  "14444": {
+    "severity": "high",
+    "category": "bug",
+    "summary": "FastAPI 0.123.5 breaks async wrappers using functools.wraps around sync functions because inspect.unwrap checks the original sync function instead of the async wrapper."
+  },
+  "14221": {
+    "severity": "high",
+    "category": "bug",
+    "summary": "Recent changes to _remap_definitions_and_field_mappings in v0.119.0 lead to a KeyError: '$ref' when processing certain field mappings."
+  },
+  "13715": {
+    "severity": "low",
+    "category": "question",
+    "summary": "The user is asking a question about a discrepancy between their local sub-application docs and the official documentation example."
+  },
+  "13533": {
+    "severity": "high",
+    "category": "bug",
+    "summary": "Multiple regressions introduced in v0.115.11 affect default value handling and form validation for both x-www-form-urlencoded and multipart forms, causing empty strings to be returned instead of None."
+  },
+  "12924": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is asking how to troubleshoot slow performance when making 100 concurrent requests to a FastAPI application and whether there are any recommended tools or reference code for performance monitoring."
+  },
+  "12419": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is asking how to pass a None value to a query parameter that is defined as required but can also be None using FastAPI and Pydantic."
+  },
+  "12402": {
+    "severity": "high",
+    "category": "bug",
+    "summary": "In FastAPI version 0.115.0, Pydantic models using an alias generator fail to correctly receive and parse query parameters when accessed."
+  },
+  "12382": {
+    "severity": "low",
+    "category": "feature_request",
+    "summary": "Request to add HTML web template samples demonstrating token authentication with JWT for multiple concurrent users."
+  },
+  "12313": {
+    "severity": "high",
+    "category": "bug",
+    "summary": "Using Annotated with Query and a default value of ... raises a ValueError when sending a request in FastAPI 0.115.0."
+  },
+  "12239": {
+    "severity": "low",
+    "category": "documentation",
+    "summary": "The sponsor badge on the documentation site has a CSS overflow issue due to absolute positioning, causing unexpected text trailing and scrolling."
+  },
+  "12017": {
+    "severity": "high",
+    "category": "bug",
+    "summary": "CI builds are failing across multiple PRs due to missing image files (icon-white.svg) in various translated documentation directories."
+  },
+  "11754": {
+    "severity": "low",
+    "category": "other",
+    "summary": "This is a test issue created by the repository author with no concrete content or bug report."
+  },
+  "11624": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is asking how to maintain a single global database connection per database throughout their application using SQLAlchemy instead of creating a session on every request."
+  },
+  "11586": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is asking why a single body parameter using Body() fails with a client request sending a JSON object, and how to correctly implement it."
+  },
+  "10787": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "The OpenAPI utility code still references old HTTPValidationError and ValidationError structures from before Pydantic v2 (FastAPI 0.100.0), and needs to be updated."
+  },
+  "10720": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "FastAPI fails to correctly await an async dependable wrapped in functools.partial(), instead passing the unawaited coroutine object to the route function."
+  },
+  "10717": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "Pydantic v2 incompatibility with FastAPI-JWT-Auth results in a TypeError when using validators on schemas, and the user is asking for alternatives."
+  },
+  "10462": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is asking for assistance on how to simultaneously return an image and related metadata as a response in FastAPI."
+  },
+  "10259": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is asking how to correctly define custom objects (like a BSON ObjectId using Pydantic V2 annotations) as query parameters in FastAPI."
+  },
+  "10236": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "The endpoint parameter types in FastAPI.add_api_route and APIRouter.add_api_route are inconsistent, causing a mypy type error when directly mounting a route on FastAPI."
+  },
+  "9764": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is receiving a 422 Unprocessable Entity error when attempting to send multiple image files in a multipart/form-data POST request using the requests library to a FastAPI endpoint expecting a list of UploadFiles."
+  },
+  "9684": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is asking for assistance with a FastAPI executable created using a conda environment that runs as a Windows service, but fails to start the server properly."
+  },
+  "9355": {
+    "severity": "low",
+    "category": "documentation",
+    "summary": "The author is asking when the Chinese translation documentation on the FastAPI website will be updated to include newer content like 'Concurrency and async / await'."
+  },
+  "6007": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "Using a list of strings for header parameters results in a 422 Unprocessable Entity response instead of successfully capturing duplicate headers."
+  },
+  "5892": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is asking for assistance and clarification on why an extractor function depending on a query parameter and a cookie does not return the expected cookie value when the query parameter is omitted."
+  },
+  "5859": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "Using `from __future__ import annotations` causes FastAPI 0.89.0 to interpret `None` as `NoneType` rather than `None`, resulting in an AssertionError when combined with `status_code=204`."
+  },
+  "5841": {
+    "severity": "medium",
+    "category": "bug",
+    "summary": "Passing a required Body argument with a Union type allowing None fails when sending a JSON null in a POST request, returning a field required error."
+  },
+  "5831": {
+    "severity": "medium",
+    "category": "question",
+    "summary": "The user is asking how to restrict access to a mounted Gradio application in FastAPI based on user authentication and subscription status."
+  }
+}

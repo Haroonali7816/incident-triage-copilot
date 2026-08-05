@@ -31,11 +31,23 @@ class ClassificationResult(BaseModel):
             "critical: system-breaking, no workaround, affects many users. "
             "high: major functionality broken, workaround may exist. "
             "medium: minor bug or missing feature, limited impact. "
-            "low: cosmetic, typo, or trivial improvement."
+            "low: cosmetic, typo, or trivial improvement. "
+            "Base severity on the BODY's actual concrete content, not the title's "
+            "tone -- an alarming-sounding title with a thin, vague, or contentless "
+            "body should default toward low/medium, not high/critical."
         )
     )
     category: Literal["bug", "feature_request", "question", "documentation", "other"] = Field(
-        description="What kind of issue this fundamentally is."
+        description=(
+            "bug: a defect in existing behavior. "
+            "feature_request: a request for new functionality. "
+            "question: the author is asking how to do something, not reporting a defect. "
+            "documentation: about docs content/site, not code behavior. "
+            "other: doesn't genuinely fit the above -- spam, duplicate reports, "
+            "vague or low-signal issues with no real content, non-technical "
+            "content, or automated/bot-generated reports. Use 'other' rather "
+            "than forcing a low-signal issue into 'bug' or 'question'."
+        )
     )
     summary: str = Field(
         description="One or two sentence plain-English summary of the issue.",
