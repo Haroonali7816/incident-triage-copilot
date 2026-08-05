@@ -17,9 +17,9 @@ class IncidentCreate(IncidentBase):
     pass
 
 class IncidentRead(IncidentBase):
-    model_config = ConfigDict(from_attributes = True) # this lets us read straight from an ORM object.
+    model_config = ConfigDict(from_attributes=True)  # lets this read straight from an ORM object
 
-id:int
-severity: str | None = None
-category: str | None = None
-summary: str | None = None 
+    id: int
+    severity: str | None = None
+    category: str | None = None
+    summary: str | None = None
