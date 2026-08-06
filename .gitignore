@@ -1,6 +1,14 @@
+
 .env
+
 __pycache__/
+*.pyc
 .venv/
 venv/
 
 data/*.json
+
+chroma_db/
+
+.vscode/
+.idea/
